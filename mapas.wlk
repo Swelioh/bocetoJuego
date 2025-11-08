@@ -15,14 +15,22 @@ class TipoMapa {
   const nivel = new Nivel(numero = 0)
   const fondo = FondoNivel
   const listaEnemigos = []
-  //const listaEnemigosEnPantalla = []
   const nombreMusica = null
+  var musicaObjeto = null
 
   method reiniciar() {
       // Simplemente resetea el estado de CADA enemigo en la lista maestra
       listaEnemigos.forEach({ enemigo => 
           enemigo.reiniciar()
       })
+      
+  }
+
+  method detenerMusica() {
+    if (musicaObjeto != null) {
+      musicaObjeto.stop()
+      musicaObjeto = null // Limpiamos la referencia
+    }
   }
 
   method iniciar() {
@@ -39,11 +47,13 @@ class TipoMapa {
     })
 
     if (nombreMusica != null) {
-      const musicaObjeto = game.sound(nombreMusica)
-      musicaObjeto.shouldLoop(true) // Le decimos que se repita
+      musicaObjeto = game.sound(nombreMusica) 
+      musicaObjeto.shouldLoop(true)
       musicaObjeto.volume(0.15)
-      musicaObjeto.play() // Lo reproducimos
+      musicaObjeto.play()
     }
+    
+
     game.schedule(5000, { => game.removeVisual(nivel) })
 
     game.addVisual(barraDeVida)     
@@ -74,31 +84,32 @@ class FondoNivel{
 
 
 // 2. LUEGO LAS CONSTANTES (los "objetos" creados a partir de los moldes)
-const bosque = new TipoMapa(nivel = new Nivel(numero = 1), fondo = new FondoNivel(imagen="Summer1.png"), listaEnemigos = [maniqui,hongo, murcielago], nombreMusica = "theShire.wav")
-const desierto = new TipoMapa(nivel = new Nivel(numero = 2), fondo = new FondoNivel(imagen="arena.png"), listaEnemigos = [maniqui])
-const agua = new TipoMapa(nivel = new Nivel(numero = 3), fondo = new FondoNivel(imagen="agua.png"), listaEnemigos = [maniqui])
-const nevado = new TipoMapa(nivel = new Nivel(numero = 4), fondo = new FondoNivel(imagen="nevada.png"), listaEnemigos = [maniqui])
-const mapaFinal = new TipoMapa(nivel = new Nivel(numero = 5), fondo = new FondoNivel(imagen="mapaFinal.png"), listaEnemigos = [maniqui])
+const tutorial = new TipoMapa(nivel = new Nivel(numero = 1), fondo = new FondoNivel(imagen="Summer1.png"), listaEnemigos = [maniqui,hongo], nombreMusica = "theShire.wav")
+const bosque = new TipoMapa(nivel = new Nivel(numero = 2), fondo = new FondoNivel(imagen="bosques.png"), listaEnemigos = [hongo,murcielago],nombreMusica = "theDarkForest.wav")
+const agua = new TipoMapa(nivel = new Nivel(numero = 3), fondo = new FondoNivel(imagen="aguas.png"), listaEnemigos = [hongo])
+const nevado = new TipoMapa(nivel = new Nivel(numero = 4), fondo = new FondoNivel(imagen="nevada.png"), listaEnemigos = [hongo])
+const mapaFinal = new TipoMapa(nivel = new Nivel(numero = 5), fondo = new FondoNivel(imagen="finalMap.png"), listaEnemigos = [hongo])
 
 
 
 // 3. AL FINAL DE TODO, EL OBJETO PRINCIPAL QUE USA LO ANTERIOR
 object mapa {
-  const niveles=[bosque,desierto,nevado,agua,mapaFinal]
+  const niveles=[tutorial,bosque,nevado,agua,mapaFinal]
   var indiceNivel=0
-  var nuevoMapa = bosque
+  var nuevoMapa = tutorial
   
   method reiniciar(){
+    nuevoMapa.detenerMusica()
+
     indiceNivel=0
     nuevoMapa=niveles.get(indiceNivel)
-
-    
 
     nuevoMapa.reiniciar()
     nuevoMapa.iniciar()
   }
 
   method siguienteMapa() {
+    nuevoMapa.detenerMusica()
     if(indiceNivel<niveles.size()){
       nuevoMapa=niveles.get(indiceNivel)
       game.clear()
