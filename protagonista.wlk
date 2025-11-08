@@ -17,7 +17,7 @@ object protagonista {
 //-------VARIABLES DE ATAQUE-----------
   var estaAtacando = false      
   var timerAtaque = 0          
-  const duracionAtaque = 15
+  const duracionAtaque = 12
 
 //------VARIABLES DE VIDA
   var property personajeVida = 100
@@ -40,8 +40,12 @@ object protagonista {
 	const umbralActivarEscudo = 10 // Energía mínima para poder levantar el escudo
 	const costeMantenerEscudo = 0.5 // Costo por tick por mantenerlo
 	const costeGolpeEscudo = 15 // Costo extra al recibir un golpe
-	const recargaEnergia = 0.8 // Regeneración por tick cuando no se usa
+	const recargaEnergia = 0.3 // Regeneración por tick cuando no se usa
 
+    // --- VARIABLES DE DASH (ENERGÍA) ---
+    var estaHaciendoDash = false
+    var timerDash = 0
+    var invenciblePorDash = false   
 
     // --- PROPIEDADES PARA ANIMACIÓN ---
   var property image = "guerrero1Derecha.png"
@@ -65,16 +69,18 @@ object protagonista {
         return direccionHorizontal.imagenBloqueo("guerrero")
     }
 
+    method obtenerAnimacionAtaqueAereo() {
+    return direccionHorizontal.animacionAtacandoAereo("guerrero", 4)
+    }
 
-//-------Sonidos----------
-method sonidoAtaque() {
-    const s = game.sound("espadanormal.wav")
-    s.volume(0.20)
-    return s
-}
-    //method obtenerAnimacionAtaque() {
-    //    return ["guerrero" + direccionHorizontal.nombre() + "Ataque1.png", "guerrero" + direccionHorizontal.nombre() + "Ataque2.png", "guerrero" + direccionHorizontal.nombre() + "Ataque3.png", "guerrero" + direccionHorizontal.nombre() + "Ataque4.png", "guerrero" + direccionHorizontal.nombre() + "Ataque5.png"]
-    //}
+
+    //-------Sonidos----------
+    method sonidoAtaque() {
+        const s = game.sound("espadanormal.wav")
+        s.volume(0.20)
+        return s
+    }
+        
 
     method obtenerAnimacionGolpeado() {
         return direccionHorizontal.animacionGolpeado("guerrero", 3)
@@ -137,6 +143,8 @@ method sonidoAtaque() {
             velocidadVertical = fuerzaSalto
         }
     }
+
+
  method alternarEscudo() {
         if (estaBloqueando) {
             self.desactivarEscudo()
@@ -154,10 +162,45 @@ method sonidoAtaque() {
 	}
 
 
+    method intentarDash() {
+    const costeEnergiaDash = 25
+    const distanciaDash = 5
+    const duracionDash = 8
+    const sonidoDash = game.sound("dash1.wav")
+
+    if (estaHaciendoDash or estaAtacando or estaBloqueando or energiaEscudo < costeEnergiaDash) { /*no hace nada*/ }
+    else{
+
+    estaHaciendoDash = true
+    invenciblePorDash = true 
+    timerDash = duracionDash
+    self.gastarEnergia(costeEnergiaDash)
+
+    timerInvencible = duracionDash
+    velocidadX = 0
+
+    const nuevaX = position.x() + (direccionHorizontal.empuje() * distanciaDash)
+
+    const xLimitada = nuevaX.max(-1).min(53) //Limita los bordes del mapa
+
+    position = game.at(xLimitada, position.y())
+   
+    sonidoDash.play()
+    sonidoDash.setVolume(0.4)
+    }
+    
+}
 
   // MÉTODO DE ACTUALIZACIÓN PRINCIPAL (Llamado por game.onTick)
   // Este es el corazón del objeto.
     method actualizar() {
+        if (estaHaciendoDash) {
+        timerDash -= 1
+        if (timerDash <= 0) {
+            estaHaciendoDash = false
+            invenciblePorDash = false   
+        }
+    }
         //El timer de invencibilidad se reduce en cada tick
         if (timerInvencible > 0) {
             timerInvencible -= 1
@@ -166,7 +209,8 @@ method sonidoAtaque() {
             // Usamos 'estaAtacando' como bandera.
         // Si no está "atacando" (bandera libre), ejecuta el bloque de muerte y pon la bandera.
         if (not estaAtacando) { 
-            
+            mapa.mapaActual().detenerMusica()
+            finDelJuego.sonarMusica()
             image = direccionHorizontal.imagenDerrotado("guerrero")
             game.addVisual(finDelJuego)
             finDelJuego.agregarListener()
@@ -220,7 +264,7 @@ method sonidoAtaque() {
 	}
 
     method verificarColisionEnemigos() {
-        if (timerInvencible <= 0) {
+        if (timerInvencible <= 0 and not invenciblePorDash) {
        mapa.mapaActual().listaEnemigos().forEach({ enemigo=>
             if (enemigo.estaVivo() and self.position().distance(enemigo.position()) < 1) {
                 
@@ -326,8 +370,16 @@ method sonidoAtaque() {
             image = self.obtenerImagenBloqueo()
 
         }else if (estaAtacando) {
-        // 1. Elige la lista de animación correcta (derecha o izquierda).
-        const animacion = self.obtenerAnimacionAtaque()
+        
+        var animacion = null
+
+        if (not self.estaEnElSuelo()) {
+            // Si NO está en el suelo, usa la animación AÉREA
+            animacion = self.obtenerAnimacionAtaqueAereo()
+        } else {
+            // Si SÍ está en el suelo, usa la animación normal
+            animacion = self.obtenerAnimacionAtaque()
+        }
         
         // 2. Calcula cuántos ticks dura cada frame de la animación.
         const ticksPorFrame = duracionAtaque / animacion.size()
@@ -389,7 +441,7 @@ method sonidoAtaque() {
     }
 
     method atacar(){
-        if (not estaAtacando and self.estaEnElSuelo() and not estaBloqueando) {
+        if (not estaAtacando /*and self.estaEnElSuelo()*/ and not estaBloqueando) {
             self.sonidoAtaque().play()
             estaAtacando = true
             timerAtaque = duracionAtaque 
