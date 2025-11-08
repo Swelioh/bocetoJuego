@@ -171,6 +171,8 @@ method sonidoAtaque() {
             game.addVisual(finDelJuego)
             finDelJuego.agregarListener()
             estaAtacando = true // <-- Marcamos la bandera para que no se repita
+
+            
         }
         }
         else {
