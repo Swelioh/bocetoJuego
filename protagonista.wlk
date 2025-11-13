@@ -263,7 +263,7 @@ object protagonista {
     method verificarColisionEnemigos() {
         if (timerInvencible <= 0 and not invenciblePorDash) {
        mapa.mapaActual().listaEnemigos().forEach({ enemigo=>
-            if (enemigo.estaVivo() and self.position().distance(enemigo.position()) < 1) {
+            if (enemigo.estaVivo() and self.position().distance(enemigo.position()) < 1.5) {
                 
                 const danioRecibido = enemigo.danioDeGolpes()
 				var danioFinal = danioRecibido

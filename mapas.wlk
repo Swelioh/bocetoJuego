@@ -70,22 +70,23 @@ class FondoNivel{
 }
 
 // 2. LUEGO LAS CONSTANTES (los "objetos" creados a partir de los moldes)
-const tutorial = new TipoMapa(nivel = new Nivel(numero = 1), fondo = new FondoNivel(imagen="Summer1.png"), listaEnemigos = [maniqui, hongo, murcielago, hongo2], nombreMusica = "theShire.wav")
-const bosque = new TipoMapa(nivel = new Nivel(numero = 2), fondo = new FondoNivel(imagen="bosque1.png"), listaEnemigos = [hongo,murcielago],nombreMusica = "")
-const agua = new TipoMapa(nivel = new Nivel(numero = 3), fondo = new FondoNivel(imagen="aguas.png"), listaEnemigos = [hongo])
-const nevado = new TipoMapa(nivel = new Nivel(numero = 4), fondo = new FondoNivel(imagen="nevada.png"), listaEnemigos = [hongo])
-const mapaFinal = new TipoMapa(nivel = new Nivel(numero = 5), fondo = new FondoNivel(imagen="finalMap.png"), listaEnemigos = [hongo])
+const tutorial = new TipoMapa(nivel = new Nivel(numero = 1), fondo = new FondoNivel(imagen="Summer1.png"), listaEnemigos = [maniqui], nombreMusica = "theShire.wav")
+const bosque = new TipoMapa(nivel = new Nivel(numero = 2), fondo = new FondoNivel(imagen="bosques.png"), listaEnemigos = [hongo,hongoVolador,hongo2,hongo3,hongo],nombreMusica = "")
+const cueva = new TipoMapa(nivel = new Nivel(numero = 3), fondo = new FondoNivel(imagen="cueva2.png"), listaEnemigos = [murcielago,golem,golem2])
+const pantano = new TipoMapa(nivel = new Nivel(numero = 4), fondo = new FondoNivel(imagen="pantano.png"), listaEnemigos = [sapo])
+//const mapaFinal = new TipoMapa(nivel = new Nivel(numero = 5), fondo = new FondoNivel(imagen="finalMap.png"), listaEnemigos = [hongo])
 
 
 
 // 3. AL FINAL DE TODO, EL OBJETO PRINCIPAL QUE USA LO ANTERIOR
 object mapa {
-  const niveles=[tutorial,bosque,nevado,agua,mapaFinal]
+  const niveles=[tutorial,bosque,cueva,pantano]
   var indiceNivel=0
   var nuevoMapa = tutorial
   
   method reiniciar(){
     nuevoMapa.detenerMusica()
+    enemigos.reiniciarContador()
     indiceNivel=0
     nuevoMapa=niveles.get(indiceNivel)
     nuevoMapa.iniciar()
@@ -96,6 +97,7 @@ object mapa {
     if(indiceNivel<niveles.size()){
       nuevoMapa=niveles.get(indiceNivel)
       game.clear()
+      enemigos.reiniciarContador()
       controlacion.detenerTimers()
       nuevoMapa.iniciar()
       indiceNivel =+ 1
