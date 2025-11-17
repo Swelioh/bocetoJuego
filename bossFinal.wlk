@@ -17,6 +17,10 @@ class Inquisidor inherits EnemigoCaminador {
     var timerAtaqueActual = 0 // Duración de un ataque (ej. estocada)
     var estaHaciendoParry = false
     
+    method animacionEstocada() {
+    // Necesitarás las imágenes "inquisidorDerechaEstocada1.png", etc.
+    return direccionHorizontal.animacionAtacando("inquisidor", 6)
+}
     
    override method actualizar() {
     // 1. Lógica Heredada de Golpeado (Llama a super() primero para la animación de impacto)
@@ -25,6 +29,17 @@ class Inquisidor inherits EnemigoCaminador {
     // 2. Manejo de Timer de Ataque/Parry
     if (timerAtaqueActual > 0) {
         timerAtaqueActual -= 1
+        const animacion = self.animacionEstocada()
+        const duracionTotal = 30 // El valor original de timerAtaqueActual
+        
+        // (60 ticks / 6 frames = 10 ticks por frame)
+        const ticksPorFrame = duracionTotal / animacion.size() 
+        
+        const tiempoPasado = duracionTotal - timerAtaqueActual
+        var frameIndex = (tiempoPasado / ticksPorFrame).floor()
+        frameIndex = frameIndex.min(animacion.size() - 1) // Seguridad
+        
+        image = animacion.get(frameIndex)
         if (timerAtaqueActual == 0) {
             estaHaciendoParry = false
             image = self.reposo() 
@@ -55,7 +70,7 @@ class Inquisidor inherits EnemigoCaminador {
     method comportamientoFase1() {
         const distancia = self.position().distance(protagonista.position())
         
-        if (distancia > 4) {
+        if (distancia > 10) {
             // 1. Caminata Lenta: 
             // Usa la IA de 'perseguir' que heredamos,
             // pero su 'velocidadMaxima' (definida abajo) es muy baja.
@@ -70,15 +85,15 @@ class Inquisidor inherits EnemigoCaminador {
     
     method intentarEstocadaSimple() {
         // (Lógica de ataque simple)
-        timerAccion = 120 // 120 ticks de cooldown antes de la próxima acción
-        timerAtaqueActual = 60 // El ataque dura 60 ticks
+        timerAccion = 90 // 120 ticks de cooldown antes de la próxima acción
+        timerAtaqueActual = 30// El ataque dura 60 ticks
         
         // (Aquí pondrías la animación de ataque)
         // image = ...
         
         // (En el tick justo, haces el daño)
-        game.schedule(1000, { => // 1 seg
-             if (self.position().distance(protagonista.position()) < 5 && estaVivo) {
+        game.schedule(1200, { => // 1 seg
+             if (self.position().distance(protagonista.position()) < 15 && estaVivo) {
                 // (Aquí faltaría chequear la dirección, como en protagonista.atacar)
                 protagonista.restarVida(self.danioDeGolpes()) 
              }
@@ -89,7 +104,7 @@ class Inquisidor inherits EnemigoCaminador {
     override method recibirGolpe(danio) {
         // ¿Intento un Parry?
         // Solo en Fase 1, si no estoy atacando/parando, y tengo chance
-        if (faseActual == 1 && timerAtaqueActual <= 0 && Number.randomUpTo(100) < 50) { // 50% chance
+        if (faseActual == 2 && timerAtaqueActual <= 0  ) { // 50% chance esto va adentro && Number.randomUpTo(100) < 50
             self.ejecutarParry()
         } else {
             // Si no hago parry (o estoy en otra fase), recibo el golpe normal
@@ -127,4 +142,7 @@ class Inquisidor inherits EnemigoCaminador {
 // ¡Lo añadimos al final de enemigos.wlk o en su propio archivo!
 
 
-const judgeHolden = new Inquisidor(nombre = "judgeHolden", positionInicial = game.at(30, 1),danioDeGolpes = 10, vidaInicial = 150,vida = 150,image = "golemIzquierdaQuieto.png",animMoviendose = 10,animAtaque = 11,animGolpeado = 4,sonidoGolpe = "golemHit.wav",velocidadMaxima = 0.05)
+const inquisidor = new Inquisidor(nombre = "inquisidor", positionInicial = game.at(30, 1),danioDeGolpes = 25, vidaInicial = 300,vida = 300,image = "inquisidorIzquierdaQuieto.png",animMoviendose = 8,animAtaque = 11,animGolpeado = 4,sonidoGolpe = "golemHit.wav",velocidadMaxima = 0,radioDeAgresion=20)
+
+
+const judge = new EnemigoCaminador(nombre = "inquisidor", positionInicial = game.at(30, 1),danioDeGolpes = 0, vidaInicial = 300,vida = 300,image = "inquisidorIzquierdaQuieto.png",animMoviendose = 8,animAtaque =6,animGolpeado = 4,sonidoGolpe = "inquisidorGolpeado.wav",velocidadMaxima = 0.3)

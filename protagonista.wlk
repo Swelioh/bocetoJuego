@@ -205,7 +205,7 @@ object protagonista {
         if (not estaVivo){
             // Usamos 'estaAtacando' como bandera.
         // Si no está "atacando" (bandera libre), ejecuta el bloque de muerte y pon la bandera.
-        if (not estaAtacando) { 
+      if (not estaAtacando) { 
             mapa.mapaActual().detenerMusica()
             finDelJuego.sonarMusica()
             image = direccionHorizontal.imagenDerrotado("guerrero")

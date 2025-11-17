@@ -16,15 +16,13 @@ class TipoMapa {
   const nivel = new Nivel(numero = 0)
   const fondo = FondoNivel
   const listaEnemigos = []
-  var enemigos = []
-  var listaEnemigosEnPantalla = []
+  const enemigos = []
+  const listaEnemigosEnPantalla = []
   const nombreMusica = null
   var musicaObjeto = null
 
   method iniciar() {
     listaEnemigos.forEach({enemigo => enemigo.reiniciar()})
-    enemigos = [] 
-    listaEnemigosEnPantalla = []
     enemigos.clear()                         // Vacía la lista actual
     listaEnemigosEnPantalla.clear()
     enemigos.addAll(listaEnemigos)
@@ -45,10 +43,7 @@ class TipoMapa {
     game.addVisual(barraDeEnergia)
    if (self == mapaFinal) {
         // Le decimos a la barra cuál es la vida máxima del boss
-        const boss = listaEnemigosEnPantalla.find({e => e.nombre() == "inquisidor"})
-        enemigos.clear()
-        listaEnemigosEnPantalla.clear()
-        enemigos.addAll(listaEnemigos)
+        const boss = listaEnemigos.find({e => e.nombre() == "inquisidor"})
         if (boss != null) {
             barraVidaBoss.setearVidaMaxima(boss.vidaInicial())
         }
@@ -84,10 +79,10 @@ class FondoNivel{
 }
 
 // 2. LUEGO LAS CONSTANTES (los "objetos" creados a partir de los moldes)
-const tutorial = new TipoMapa(nivel = new Nivel(numero = 1), fondo = new FondoNivel(imagen="Summer1.png"), listaEnemigos = [maniqui], nombreMusica = "theShire.wav")
-const bosque = new TipoMapa(nivel = new Nivel(numero = 2), fondo = new FondoNivel(imagen="bosques.png"), listaEnemigos = [hongo,hongoVolador,hongo2,hongo3],nombreMusica = "")
+const tutorial = new TipoMapa(nivel = new Nivel(numero = 1), fondo = new FondoNivel(imagen="Summer1.png"), listaEnemigos = [judge,maniqui], nombreMusica = "theShire.wav")
+const bosque = new TipoMapa(nivel = new Nivel(numero = 2), fondo = new FondoNivel(imagen="fondoHongo.png"), listaEnemigos = [hongo,hongoVolador,hongo2,hongo3],nombreMusica = "bosqueMagico.wav")
 const cueva = new TipoMapa(nivel = new Nivel(numero = 3), fondo = new FondoNivel(imagen="cueva2.png"), listaEnemigos = [murcielago,golem,golem2])
-const pantano = new TipoMapa(nivel = new Nivel(numero = 4), fondo = new FondoNivel(imagen="pantano2.png"), listaEnemigos = [sapo,sapo2,monstruo,monstruo2])
+const pantano = new TipoMapa(nivel = new Nivel(numero = 4), fondo = new FondoNivel(imagen="fondoOtonio.png"), listaEnemigos = [sapo,sapo2,monstruo,monstruo2])
 const mapaFinal = new TipoMapa(nivel = new Nivel(numero = 5), fondo = new FondoNivel(imagen="fondoCapaz.png"), listaEnemigos = [inquisidor])
 
 
